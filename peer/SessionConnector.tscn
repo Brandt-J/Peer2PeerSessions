@@ -1,0 +1,77 @@
+[gd_scene load_steps=2 format=3 uid="uid://xkgrb40rb8x"]
+
+[ext_resource type="Script" uid="uid://db01upv064u6i" path="res://session_connector.gd" id="1_o4d5p"]
+
+[node name="SessionConnector" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_o4d5p")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LabelStatus" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Server Status: Not Connected"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 20
+text = "Available Sessions:"
+
+[node name="HBoxSessions" type="HBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxSessions"]
+layout_mode = 2
+text = "No sessions available :("
+
+[node name="Spacer" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "
+"
+
+[node name="Label3" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 20
+text = "Create New Session:"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Session Name:"
+
+[node name="LineEditSessionName" type="LineEdit" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Fun Game Session 1"
+
+[node name="ButtonCreateSession" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "Create New Session"
+
+[node name="TimerConnect" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 2.0
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/ButtonCreateSession" to="." method="_request_session"]
+[connection signal="timeout" from="TimerConnect" to="." method="_try_connecting_to_server"]

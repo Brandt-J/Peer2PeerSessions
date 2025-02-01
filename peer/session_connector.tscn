@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://xkgrb40rb8x"]
-
-[ext_resource type="Script" uid="uid://db01upv064u6i" path="res://session_connector.gd" id="1_4y1er"]
-
-[node name="SessionConnector" type="Node"]
-script = ExtResource("1_4y1er")

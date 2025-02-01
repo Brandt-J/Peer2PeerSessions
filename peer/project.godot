@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="peer"
+run/main_scene="uid://xkgrb40rb8x"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 

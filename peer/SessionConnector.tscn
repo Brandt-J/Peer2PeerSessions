@@ -63,6 +63,20 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 text = "Fun Game Session 1"
 
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "   Map:"
+
+[node name="MapSelector" type="OptionButton" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Map1"
+popup/item_0/id = 0
+popup/item_1/text = "Map2"
+popup/item_1/id = 1
+
 [node name="ButtonCreateSession" type="Button" parent="VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

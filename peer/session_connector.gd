@@ -3,6 +3,7 @@ extends Control
 var IP_ADDRESS: String = "127.0.0.1"
 var PORT: int = 31415
 var sessionScene: PackedScene = preload("res://GameSession.tscn")
+var sessions: Dictionary[String, GameSession] = {}
 
 
 func _ready() -> void:
@@ -24,26 +25,71 @@ func _try_connecting_to_server() -> void:
 
 
 @rpc
-func receive_session_update(sessionDict: Dictionary[String, int]) -> void:
-	for child in %HBoxSessions.get_children():
-		child.queue_free()
+func receive_sessions_update(sessionDict: Dictionary[String, Array]) -> void:
+	# sessionsDict -> key: Name, val: [mapName, numPlayers]
+	_remove_unused_sessions(sessionDict.keys())
 	
 	var newSession: GameSession
+	var joinFunc: Callable
+	
 	for session_name in sessionDict:
+		if session_name in sessions.keys():
+			continue
+			
 		newSession = sessionScene.instantiate()
 		%HBoxSessions.add_child(newSession)
 		newSession.set_owner(%HBoxSessions)
 		
 		newSession.set_session_name(session_name)
-		newSession.set_num_players(sessionDict[session_name])
+		newSession.set_map_name(sessionDict[session_name][0])
+		newSession.set_num_players(sessionDict[session_name][1])
+		
+		sessions[session_name] = newSession
+		
+		newSession.JoinRequest.connect(_request_join_session)
+		newSession.LeaveRequest.connect(_request_leaving_session)
+
+
+func _remove_unused_sessions(available_session_names: Array[String]) -> void:
+	for session_name in sessions.keys():
+		if session_name not in available_session_names:
+			sessions[session_name].queue_free()
+			sessions.erase(session_name)
 
 
 func _request_session() -> void:
-	rpc("create_session", %LineEditSessionName.text)
+	rpc("create_session", %LineEditSessionName.text, %MapSelector.text)
 	
+
+func _request_join_session(active_session_name: String) -> void:
+	rpc("join_session", active_session_name, multiplayer.get_unique_id())
+	for session_name in sessions:
+		if session_name == active_session_name:
+			sessions[session_name].set_active()
+		else:
+			sessions[session_name].disable_ui()
 	
+
+func _request_leaving_session(active_session_name: String) -> void:
+	rpc("leave_session", active_session_name, multiplayer.get_unique_id())
+	for session_name in sessions:
+		if session_name == active_session_name:
+			sessions[session_name].set_inactive()
+		sessions[session_name].enabled_ui()
+	
+
 @rpc("any_peer")
-func create_session(_session_name: String) -> void:
+func create_session(_session_name: String, _map_name: String) -> void:
+	pass
+
+
+@rpc("any_peer")
+func join_session(_session_name: String, _id: int) -> void:
+	pass
+
+
+@rpc("any_peer")
+func leave_session(_session_name: String, _id: int) -> void:
 	pass
 
 

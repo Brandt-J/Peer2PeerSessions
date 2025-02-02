@@ -36,11 +36,19 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "DefaultName"
 
+[node name="Label4" type="Label" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+text = "Map: "
+
+[node name="LabelMap" type="Label" parent="MarginContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "UnknownMap"
+
 [node name="Label3" type="Label" parent="MarginContainer/GridContainer"]
 layout_mode = 2
 text = "Connected Peers: "
 
-[node name="LabelNumPeers" type="Label" parent="MarginContainer/GridContainer"]
+[node name="VBoxSessions" type="VBoxContainer" parent="MarginContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "0"

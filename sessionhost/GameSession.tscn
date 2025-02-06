@@ -23,32 +23,41 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="Label" type="Label" parent="MarginContainer/GridContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Session:"
 
-[node name="LabelSessionName" type="Label" parent="MarginContainer/GridContainer"]
+[node name="LabelSessionName" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "DefaultName"
 
-[node name="Label4" type="Label" parent="MarginContainer/GridContainer"]
+[node name="Label4" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Map: "
 
-[node name="LabelMap" type="Label" parent="MarginContainer/GridContainer"]
+[node name="LabelMap" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "UnknownMap"
 
-[node name="Label3" type="Label" parent="MarginContainer/GridContainer"]
+[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Connected Peers: "
 
-[node name="VBoxSessions" type="VBoxContainer" parent="MarginContainer/GridContainer"]
+[node name="VBoxSessions" type="VBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="ButtonCloseSession" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Close Session"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonCloseSession" to="." method="_on_button_close_session_pressed"]

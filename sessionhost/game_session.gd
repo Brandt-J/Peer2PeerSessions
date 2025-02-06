@@ -5,6 +5,8 @@ var _session_name: String = "DefaultName"
 var _map_name: String = "UnknownMap"
 var _connected_peers: Array[int] = []
 
+signal Closed(String)
+
 
 func set_session_name(session_name: String) -> void:
 	name = session_name
@@ -26,10 +28,20 @@ func add_peer(id: int) -> void:
 		_connected_peers.append(id)
 		_update_id_labels()
 	
+	_send_updates_to_players()
+	
 
 func remove_peer(id: int) -> void:
 	_connected_peers.erase(id)
 	_update_id_labels()
+	_send_updates_to_players()
+	
+
+func _send_updates_to_players() -> void:
+	var update_dict: Dictionary = {"num_players": get_num_players(),
+									"map_name": get_map_name()}
+	for id in _connected_peers:
+		rpc_id(id, "receive_session_update", update_dict)
 
 
 func get_peers() -> Array[int]:
@@ -54,3 +66,12 @@ func _update_id_labels() -> void:
 		newLabel.text = str(id)
 		%VBoxSessions.add_child(newLabel)
 		newLabel.set_owner(%VBoxSessions)
+
+
+func _on_button_close_session_pressed():
+	Closed.emit(_session_name)
+
+
+@rpc
+func receive_session_update(_session_dict: Dictionary) -> void:
+	pass

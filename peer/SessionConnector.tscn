@@ -35,7 +35,8 @@ text = "Available Sessions:"
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/HBoxSessions"]
+[node name="LabelNoSessions" type="Label" parent="VBoxContainer/HBoxSessions"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "No sessions available :("
 

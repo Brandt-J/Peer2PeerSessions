@@ -29,25 +29,33 @@ func receive_sessions_update(sessionDict: Dictionary[String, Array]) -> void:
 	# sessionsDict -> key: Name, val: [mapName, numPlayers]
 	_remove_unused_sessions(sessionDict.keys())
 	
-	var newSession: GameSession
-	var joinFunc: Callable
+	if sessionDict.size() == 0:
+		%LabelNoSessions.show()
+	else:
+		%LabelNoSessions.hide()
+
+	var curSession: GameSession
 	
 	for session_name in sessionDict:
 		if session_name in sessions.keys():
-			continue
+			curSession = sessions[session_name]
+		else:
+			curSession = _create_new_session(session_name)
 			
-		newSession = sessionScene.instantiate()
-		%HBoxSessions.add_child(newSession)
-		newSession.set_owner(%HBoxSessions)
-		
-		newSession.set_session_name(session_name)
-		newSession.set_map_name(sessionDict[session_name][0])
-		newSession.set_num_players(sessionDict[session_name][1])
-		
-		sessions[session_name] = newSession
-		
-		newSession.JoinRequest.connect(_request_join_session)
-		newSession.LeaveRequest.connect(_request_leaving_session)
+		curSession.set_map_name(sessionDict[session_name][0])
+		curSession.set_num_players(sessionDict[session_name][1])
+
+
+func _create_new_session(session_name: String) -> GameSession:
+	var newSession: GameSession = sessionScene.instantiate()
+	%HBoxSessions.add_child(newSession)
+	newSession.set_owner(%HBoxSessions)
+	newSession.set_session_name(session_name)
+	
+	sessions[session_name] = newSession
+	newSession.JoinRequest.connect(_request_join_session)
+	newSession.LeaveRequest.connect(_request_leaving_session)
+	return newSession
 
 
 func _remove_unused_sessions(available_session_names: Array[String]) -> void:
@@ -71,11 +79,7 @@ func _request_join_session(active_session_name: String) -> void:
 	
 
 func _request_leaving_session(active_session_name: String) -> void:
-	rpc("leave_session", active_session_name, multiplayer.get_unique_id())
-	for session_name in sessions:
-		if session_name == active_session_name:
-			sessions[session_name].set_inactive()
-		sessions[session_name].enabled_ui()
+	rpc("leave_session_on_server", active_session_name, multiplayer.get_unique_id())
 	
 
 @rpc("any_peer")
@@ -89,12 +93,20 @@ func join_session(_session_name: String, _id: int) -> void:
 
 
 @rpc("any_peer")
-func leave_session(_session_name: String, _id: int) -> void:
+func leave_session_on_server(_session_name: String, _id: int) -> void:
 	pass
+	
+
+@rpc
+func leave_session_on_client(active_session_name: String) -> void:
+	for session_name in sessions:
+		if session_name == active_session_name:
+			sessions[session_name].set_inactive()
+		sessions[session_name].enabled_ui()
 
 
 func _connected_to_server() -> void:
-	%LabelStatus.text = "Server Status: Successfully connected to Server"
+	%LabelStatus.text = "Server Status: Successfully connected to Server. ID = %s" % multiplayer.get_unique_id()
 	print(%LabelStatus.text)
 	%ButtonCreateSession.disabled = false
 	%TimerConnect.stop()

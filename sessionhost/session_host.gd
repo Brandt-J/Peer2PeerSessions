@@ -19,6 +19,7 @@ func _ready():
 	peer.create_server(PORT, MAX_CLIENTS)
 	multiplayer.multiplayer_peer = peer
 	%LabelServerState.text = "Server Running"
+	create_session("Master Session", "TestMap")
 
 
 @rpc("any_peer")
@@ -36,6 +37,7 @@ func create_session(session_name: String, map_name: String) -> void:
 	newSession.set_owner(%HBoxSessions)
 	newSession.set_session_name(session_name)
 	newSession.set_map(map_name)
+	newSession.Closed.connect(_close_session)
 	
 	_send_session_update_to_peers_in_lobby()
 	
@@ -44,12 +46,20 @@ func create_session(session_name: String, map_name: String) -> void:
 func join_session(session_name: String, id: int) -> void:
 	sessions[session_name].add_peer(id)
 	_update_peer_labels()
+	_send_session_update_to_peers_in_lobby()
 	
 	
 @rpc("any_peer")
-func leave_session(session_name: String, id: int) -> void:
+func leave_session_on_server(session_name: String, id: int) -> void:
 	sessions[session_name].remove_peer(id)
 	_update_peer_labels()
+	rpc_id(id, "leave_session_on_client", session_name)
+	_send_session_update_to_peers_in_lobby()
+	
+	
+@rpc
+func leave_session_on_client(_active_session_name: String) -> void:
+	pass
 
 
 func _send_session_update_to_peers_in_lobby() -> void:
@@ -107,6 +117,19 @@ func _get_sessions_dict() -> Dictionary[String, Array]:
 		sessionDict[session.get_session_name()] = [session.get_map_name(), session.get_num_players()]
 	
 	return sessionDict
+
+
+func _close_session(session_name: String) -> void:
+	var active_session: GameSession = sessions[session_name]
+	var players_in_session: Array[int] = active_session.get_peers().duplicate()  # duplicate, bc. we modify the original list during the loop
+	for player_id in players_in_session:
+		rpc_id(player_id, "leave_session_on_client", session_name)
+		active_session.remove_peer(player_id)
+	
+	active_session.queue_free()
+	sessions.erase(session_name)
+	_update_peer_labels()
+	_send_session_update_to_peers_in_lobby()
 
 
 @rpc

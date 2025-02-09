@@ -44,9 +44,17 @@ func create_session(session_name: String, map_name: String) -> void:
 
 @rpc("any_peer")
 func join_session(session_name: String, id: int) -> void:
-	sessions[session_name].add_peer(id)
+	var curSession: GameSession = sessions[session_name]
+	curSession.add_peer(id)
 	_update_peer_labels()
 	_send_session_update_to_peers_in_lobby()
+		
+	rpc_id(id, "client_join_session", session_name, curSession.get_authority_id())
+
+	
+@rpc
+func client_join_session(_active_session_name: String, _authority_id: int) -> void:
+	pass
 	
 	
 @rpc("any_peer")

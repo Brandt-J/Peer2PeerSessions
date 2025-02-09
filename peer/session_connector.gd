@@ -5,6 +5,8 @@ var PORT: int = 31415
 var sessionScene: PackedScene = preload("res://GameSession.tscn")
 var sessions: Dictionary[String, GameSession] = {}
 
+var _initial_join: bool = false
+
 
 func _ready() -> void:
 	# Connect signals
@@ -45,6 +47,11 @@ func receive_sessions_update(sessionDict: Dictionary[String, Array]) -> void:
 		curSession.set_map_name(sessionDict[session_name][0])
 		curSession.set_num_players(sessionDict[session_name][1])
 
+	# TODO: REMOVE AFTER TESTING
+	if not _initial_join:
+		_request_join_session(curSession.get_session_name())
+		_initial_join = true
+
 
 func _create_new_session(session_name: String) -> GameSession:
 	var newSession: GameSession = sessionScene.instantiate()
@@ -71,9 +78,13 @@ func _request_session() -> void:
 
 func _request_join_session(active_session_name: String) -> void:
 	rpc("join_session", active_session_name, multiplayer.get_unique_id())
+
+
+@rpc
+func client_join_session(active_session_name: String, authority_id: int) -> void:
 	for session_name in sessions:
 		if session_name == active_session_name:
-			sessions[session_name].set_active()
+			sessions[session_name].set_active(authority_id)
 		else:
 			sessions[session_name].disable_ui()
 	

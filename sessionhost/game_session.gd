@@ -4,6 +4,7 @@ class_name GameSession
 var _session_name: String = "DefaultName"
 var _map_name: String = "UnknownMap"
 var _connected_peers: Array[int] = []
+var _authority_id: int = -1
 
 signal Closed(String)
 
@@ -23,10 +24,16 @@ func get_map_name() -> String:
 	return _map_name
 
 
+func get_authority_id() -> int:
+	return _authority_id
+
+
 func add_peer(id: int) -> void:
 	if id not in _connected_peers:
 		_connected_peers.append(id)
 		_update_id_labels()
+		if _authority_id == -1:
+			_authority_id = id
 	
 	_send_updates_to_players()
 	

@@ -88,5 +88,9 @@ text = "Create New Session"
 unique_name_in_owner = true
 wait_time = 2.0
 
+[node name="SessionSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://di0kvimdenmnx")
+spawn_path = NodePath("../VBoxContainer/HBoxSessions")
+
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/ButtonCreateSession" to="." method="_request_session"]
 [connection signal="timeout" from="TimerConnect" to="." method="_try_connecting_to_server"]

@@ -1,9 +1,26 @@
-[gd_scene load_steps=3 format=3 uid="uid://di0kvimdenmnx"]
+[gd_scene load_steps=4 format=3 uid="uid://di0kvimdenmnx"]
 
 [ext_resource type="Script" uid="uid://bxsd3b8bgpdly" path="res://game_session.gd" id="1_chf5y"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chf5y"]
 bg_color = Color(0.25098, 0.254902, 0.25098, 1)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_chf5y"]
+properties/0/path = NodePath(".:_session_name")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:_map_name")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:_connected_peers")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:_authority_id")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:name")
+properties/4/spawn = true
+properties/4/replication_mode = 2
 
 [node name="GameSession" type="PanelContainer"]
 anchors_preset = 8
@@ -72,5 +89,9 @@ layout_mode = 2
 disabled = true
 text = "Leave"
 
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_chf5y")
+
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonJoin" to="." method="_on_button_join_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonLeave" to="." method="_on_button_leave_pressed"]
+[connection signal="synchronized" from="MultiplayerSynchronizer" to="." method="_on_multiplayer_synchronizer_synchronized"]

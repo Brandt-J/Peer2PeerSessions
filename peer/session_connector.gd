@@ -26,43 +26,43 @@ func _try_connecting_to_server() -> void:
 		print("Could not create peer to ip %s on port %s. Error: %s" % [IP_ADDRESS, PORT, error])
 
 
-@rpc
-func receive_sessions_update(sessionDict: Dictionary[String, Array]) -> void:
-	# sessionsDict -> key: Name, val: [mapName, numPlayers]
-	_remove_unused_sessions(sessionDict.keys())
-	
-	if sessionDict.size() == 0:
-		%LabelNoSessions.show()
-	else:
-		%LabelNoSessions.hide()
+#@rpc
+#func receive_sessions_update(sessionDict: Dictionary[String, Array]) -> void:
+	## sessionsDict -> key: Name, val: [mapName, numPlayers]
+	#_remove_unused_sessions(sessionDict.keys())
+	#
+	#if sessionDict.size() == 0:
+		#%LabelNoSessions.show()
+	#else:
+		#%LabelNoSessions.hide()
+#
+	#var curSession: GameSession
+	#
+	#for session_name in sessionDict:
+		#if session_name in sessions.keys():
+			#curSession = sessions[session_name]
+		#else:
+			#curSession = _create_new_session(session_name)
+			#
+		#curSession.set_map_name(sessionDict[session_name][0])
+		#curSession.set_num_players(sessionDict[session_name][1])
+#
+	## TODO: REMOVE AFTER TESTING
+	#if not _initial_join:
+		#_request_join_session(curSession.get_session_name())
+		#_initial_join = true
 
-	var curSession: GameSession
-	
-	for session_name in sessionDict:
-		if session_name in sessions.keys():
-			curSession = sessions[session_name]
-		else:
-			curSession = _create_new_session(session_name)
-			
-		curSession.set_map_name(sessionDict[session_name][0])
-		curSession.set_num_players(sessionDict[session_name][1])
 
-	# TODO: REMOVE AFTER TESTING
-	if not _initial_join:
-		_request_join_session(curSession.get_session_name())
-		_initial_join = true
-
-
-func _create_new_session(session_name: String) -> GameSession:
-	var newSession: GameSession = sessionScene.instantiate()
-	%HBoxSessions.add_child(newSession)
-	newSession.set_owner(%HBoxSessions)
-	newSession.set_session_name(session_name)
-	
-	sessions[session_name] = newSession
-	newSession.JoinRequest.connect(_request_join_session)
-	newSession.LeaveRequest.connect(_request_leaving_session)
-	return newSession
+#func _create_new_session(session_name: String) -> GameSession:
+	#var newSession: GameSession = sessionScene.instantiate()
+	#%HBoxSessions.add_child(newSession)
+	#newSession.set_owner(%HBoxSessions)
+	#newSession.set_session_name(session_name)
+	#
+	#sessions[session_name] = newSession
+	#newSession.JoinRequest.connect(_request_join_session)
+	#newSession.LeaveRequest.connect(_request_leaving_session)
+	#return newSession
 
 
 func _remove_unused_sessions(available_session_names: Array[String]) -> void:

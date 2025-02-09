@@ -1,6 +1,23 @@
-[gd_scene load_steps=2 format=3 uid="uid://bglnlayvric8y"]
+[gd_scene load_steps=3 format=3 uid="uid://bglnlayvric8y"]
 
 [ext_resource type="Script" uid="uid://fmi6jwjlmryb" path="res://game_session.gd" id="1_1cnym"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_chf5y"]
+properties/0/path = NodePath(".:_session_name")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:_map_name")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:_connected_peers")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:_authority_id")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:name")
+properties/4/spawn = true
+properties/4/replication_mode = 2
 
 [node name="GameSession" type="PanelContainer"]
 anchors_preset = 8
@@ -59,5 +76,8 @@ layout_mode = 2
 [node name="ButtonCloseSession" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "Close Session"
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_chf5y")
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonCloseSession" to="." method="_on_button_close_session_pressed"]

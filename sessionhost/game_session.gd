@@ -3,14 +3,13 @@ class_name GameSession
 
 var _session_name: String = "DefaultName"
 var _map_name: String = "UnknownMap"
-var _connected_peers: Array[int] = []
-var _authority_id: int = -1
+var _connected_peers: Array[int] = [1, 2, 3, 4]
+var _authority_id: int = 1337
 
 signal Closed(String)
 
 
 func set_session_name(session_name: String) -> void:
-	name = session_name
 	_session_name = session_name
 	%LabelSessionName.text = session_name
 	
@@ -35,20 +34,20 @@ func add_peer(id: int) -> void:
 		if _authority_id == -1:
 			_authority_id = id
 	
-	_send_updates_to_players()
+	#_send_updates_to_players()
 	
 
 func remove_peer(id: int) -> void:
 	_connected_peers.erase(id)
 	_update_id_labels()
-	_send_updates_to_players()
+	#_send_updates_to_players()
 	
 
-func _send_updates_to_players() -> void:
-	var update_dict: Dictionary = {"num_players": get_num_players(),
-									"map_name": get_map_name()}
-	for id in _connected_peers:
-		rpc_id(id, "receive_session_update", update_dict)
+#func _send_updates_to_players() -> void:
+	#var update_dict: Dictionary = {"num_players": get_num_players(),
+									#"map_name": get_map_name()}
+	#for id in _connected_peers:
+		#rpc_id(id, "receive_session_update", update_dict)
 
 
 func get_peers() -> Array[int]:

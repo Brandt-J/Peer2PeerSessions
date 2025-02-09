@@ -4,8 +4,10 @@ var PORT: int = 31415
 var MAX_CLIENTS: int = 8
 
 var sessions: Dictionary[String, GameSession] = {}  # key: session_name, val: SessionObject
-var sessionScene: PackedScene = preload("res://GameSession.tscn")
+var session_scene: PackedScene = preload("res://GameSession.tscn")
 var connected_peers: Array[int] = []
+
+@onready var session_spawner: MultiplayerSpawner = $SessionSpawner
 
 
 func _ready():
@@ -30,16 +32,18 @@ func create_session(session_name: String, map_name: String) -> void:
 	if session_name in sessions:
 		return
 	
-	var newSession: GameSession = sessionScene.instantiate()
-	sessions[session_name] = newSession
-	
+	var newSession: GameSession = session_scene.instantiate()
 	%HBoxSessions.add_child(newSession)
 	newSession.set_owner(%HBoxSessions)
+	
+	sessions[session_name] = newSession
+	newSession.name = session_name
 	newSession.set_session_name(session_name)
 	newSession.set_map(map_name)
+	
 	newSession.Closed.connect(_close_session)
 	
-	_send_session_update_to_peers_in_lobby()
+
 	
 
 @rpc("any_peer")
@@ -47,8 +51,7 @@ func join_session(session_name: String, id: int) -> void:
 	var curSession: GameSession = sessions[session_name]
 	curSession.add_peer(id)
 	_update_peer_labels()
-	_send_session_update_to_peers_in_lobby()
-		
+	
 	rpc_id(id, "client_join_session", session_name, curSession.get_authority_id())
 
 	
@@ -62,7 +65,6 @@ func leave_session_on_server(session_name: String, id: int) -> void:
 	sessions[session_name].remove_peer(id)
 	_update_peer_labels()
 	rpc_id(id, "leave_session_on_client", session_name)
-	_send_session_update_to_peers_in_lobby()
 	
 	
 @rpc
@@ -70,20 +72,10 @@ func leave_session_on_client(_active_session_name: String) -> void:
 	pass
 
 
-func _send_session_update_to_peers_in_lobby() -> void:
-	for id in _get_peers_in_lobby():
-		rpc_id(id, "receive_sessions_update", _get_sessions_dict())
-
-
-func _send_session_update_to_peer(id: int) -> void:
-	rpc_id(id, "receive_sessions_update", _get_sessions_dict())
-
-
 func _peer_connected(id: int) -> void:
 	print("peer %s connected" % id)
 	connected_peers.append(id)
 	_update_peer_labels()
-	_send_session_update_to_peer(id)
 
 
 func _peer_disconnected(id: int) -> void:
@@ -137,9 +129,3 @@ func _close_session(session_name: String) -> void:
 	active_session.queue_free()
 	sessions.erase(session_name)
 	_update_peer_labels()
-	_send_session_update_to_peers_in_lobby()
-
-
-@rpc
-func receive_sessions_update(_sessionDict: Dictionary[String, Array]) -> void:
-	pass

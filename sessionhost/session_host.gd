@@ -22,6 +22,7 @@ func _ready():
 	multiplayer.multiplayer_peer = peer
 	%LabelServerState.text = "Server Running"
 	create_session("Master Session", "TestMap")
+	create_session("Krasse Session", "TestMap2")
 
 
 @rpc("any_peer")

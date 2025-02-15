@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://bxsd3b8bgpdly" path="res://game_session.gd" id="1_chf5y"]
 [ext_resource type="Script" uid="uid://csvqmdw26j3dq" path="res://session_node_spawner.gd" id="2_clpoe"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chf5y"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_clpoe"]
+resource_local_to_scene = true
 bg_color = Color(0.25098, 0.254902, 0.25098, 1)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_chf5y"]
@@ -30,7 +31,7 @@ offset_right = 216.0
 offset_bottom = 95.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_chf5y")
+theme_override_styles/panel = SubResource("StyleBoxFlat_clpoe")
 script = ExtResource("1_chf5y")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]

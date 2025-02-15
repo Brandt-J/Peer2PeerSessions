@@ -12,11 +12,17 @@ var _map_name: String
 var _current_map: GameMap
 var _mapPath: String = "res://Maps/Map1.tscn"
 var _connected_peers: Array[int] = []
+var _session_time: float = 0.0
+
 @onready var _node_replicator: NodeReplicator = $SessionNodeReplicator
 
 
 func _ready():
 	set_inactive()
+	
+
+func _process(delta: float) -> void:
+	_session_time += delta
 
 
 func get_session_name() -> String:
@@ -27,9 +33,11 @@ func set_active() -> void:
 	activeSession = true
 	%ButtonJoin.disabled = true
 	%ButtonLeave.disabled = false
+	
 	var style: StyleBoxFlat = get_theme_stylebox("panel") as StyleBoxFlat
 	style.bg_color = color_active
 	_load_map()
+	_spawn_local_player()
 
 
 func set_inactive() -> void:
@@ -55,9 +63,13 @@ func _load_map() -> void:
 	_current_map = load(_mapPath).instantiate()
 	add_child(_current_map)
 	_current_map.set_owner(self)
+	
+	
+func _spawn_local_player() -> void:
 	var scene: String = "res://addons/srcoder_thirdperson_controller/player.tscn"
 	var id: int = multiplayer.get_unique_id()
-	var player: Player = _node_replicator.spawn_node(scene, id, "Player %s" % id) as Player
+	var pos: Vector3 = _current_map.get_free_spawn_location()
+	var player: Player = _node_replicator.spawn_node(scene, id, "Player %s" % id, pos) as Player
 	player.activate()
 	
 	

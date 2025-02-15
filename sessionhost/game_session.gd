@@ -4,8 +4,13 @@ class_name GameSession
 var _session_name: String = "DefaultName"
 var _map_name: String = "UnknownMap"
 var _connected_peers: Array[int] = []
+var _session_time: float = 0.0
 
 signal Closed(String)
+
+
+func _process(delta: float) -> void:
+	_session_time += delta
 
 
 func set_session_name(session_name: String) -> void:

@@ -15,6 +15,9 @@ func _ready() -> void:
 	multiplayer.connection_failed.connect(_connection_failed)
 	multiplayer.server_disconnected.connect(_server_disconnected)
 	%TimerConnect.start()
+	await get_tree().create_timer(3).timeout
+	print("Requesting to join ", "Master Session")
+	_request_join_session("Master Session")
 	
 
 func _try_connecting_to_server() -> void:
@@ -36,6 +39,9 @@ func _request_join_session(active_session_name: String) -> void:
 
 @rpc
 func client_join_session(active_session_name: String) -> void:
+	if active_session != null:
+		active_session.set_inactive()
+		
 	active_session = null
 	for session_name in sessions:
 		if session_name == active_session_name:
@@ -105,10 +111,6 @@ func _on_session_spawner_spawned(node: Node) -> void:
 	new_session.LeaveRequest.connect(_request_leaving_session)
 	sessions[new_session.get_session_name()] = new_session
 	_update_no_sessions_label_visibility()
-	# TODO: REMOVE AFTER TESTING
-	if not is_instance_valid(active_session):
-		_request_join_session(new_session.get_session_name())
-	
 
 
 func _on_session_spawner_despawned(node: Node) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://di0kvimdenmnx"]
+[gd_scene load_steps=6 format=3 uid="uid://di0kvimdenmnx"]
 
 [ext_resource type="Script" uid="uid://bxsd3b8bgpdly" path="res://game_session.gd" id="1_chf5y"]
 [ext_resource type="Script" uid="uid://csvqmdw26j3dq" path="res://session_node_spawner.gd" id="2_clpoe"]
@@ -20,6 +20,11 @@ properties/2/replication_mode = 2
 properties/3/path = NodePath(".:name")
 properties/3/spawn = true
 properties/3/replication_mode = 2
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_clpoe"]
+properties/0/path = NodePath(".:_session_time")
+properties/0/spawn = true
+properties/0/replication_mode = 1
 
 [node name="GameSession" type="PanelContainer"]
 anchors_preset = 8
@@ -93,6 +98,10 @@ replication_config = SubResource("SceneReplicationConfig_chf5y")
 
 [node name="SessionNodeReplicator" type="Node" parent="."]
 script = ExtResource("2_clpoe")
+
+[node name="TimeSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 1.0
+replication_config = SubResource("SceneReplicationConfig_clpoe")
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonJoin" to="." method="_on_button_join_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonLeave" to="." method="_on_button_leave_pressed"]

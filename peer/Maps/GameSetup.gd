@@ -44,7 +44,7 @@ var _local_player_spawned: bool = false
 	#_local_player_spawned = true
 
 
-func _get_free_spawn_location() -> Vector3:
+func get_free_spawn_location() -> Vector3:
 	var spawn_location: Vector3
 	var free_point_found: bool = false
 	

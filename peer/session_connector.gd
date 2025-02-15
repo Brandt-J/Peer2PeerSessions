@@ -2,8 +2,8 @@ extends Control
 
 var IP_ADDRESS: String = "127.0.0.1"
 var PORT: int = 31415
-var sessionScene: PackedScene = preload("res://GameSession.tscn")
 var sessions: Dictionary[String, GameSession] = {}
+var active_session: GameSession = null
 
 var _initial_join: bool = false
 
@@ -26,52 +26,6 @@ func _try_connecting_to_server() -> void:
 		print("Could not create peer to ip %s on port %s. Error: %s" % [IP_ADDRESS, PORT, error])
 
 
-#@rpc
-#func receive_sessions_update(sessionDict: Dictionary[String, Array]) -> void:
-	## sessionsDict -> key: Name, val: [mapName, numPlayers]
-	#_remove_unused_sessions(sessionDict.keys())
-	#
-	#if sessionDict.size() == 0:
-		#%LabelNoSessions.show()
-	#else:
-		#%LabelNoSessions.hide()
-#
-	#var curSession: GameSession
-	#
-	#for session_name in sessionDict:
-		#if session_name in sessions.keys():
-			#curSession = sessions[session_name]
-		#else:
-			#curSession = _create_new_session(session_name)
-			#
-		#curSession.set_map_name(sessionDict[session_name][0])
-		#curSession.set_num_players(sessionDict[session_name][1])
-#
-	## TODO: REMOVE AFTER TESTING
-	#if not _initial_join:
-		#_request_join_session(curSession.get_session_name())
-		#_initial_join = true
-
-
-#func _create_new_session(session_name: String) -> GameSession:
-	#var newSession: GameSession = sessionScene.instantiate()
-	#%HBoxSessions.add_child(newSession)
-	#newSession.set_owner(%HBoxSessions)
-	#newSession.set_session_name(session_name)
-	#
-	#sessions[session_name] = newSession
-	#newSession.JoinRequest.connect(_request_join_session)
-	#newSession.LeaveRequest.connect(_request_leaving_session)
-	#return newSession
-
-
-func _remove_unused_sessions(available_session_names: Array[String]) -> void:
-	for session_name in sessions.keys():
-		if session_name not in available_session_names:
-			sessions[session_name].queue_free()
-			sessions.erase(session_name)
-
-
 func _request_session() -> void:
 	rpc("create_session", %LineEditSessionName.text, %MapSelector.text)
 	
@@ -81,12 +35,15 @@ func _request_join_session(active_session_name: String) -> void:
 
 
 @rpc
-func client_join_session(active_session_name: String, authority_id: int) -> void:
+func client_join_session(active_session_name: String) -> void:
+	active_session = null
 	for session_name in sessions:
 		if session_name == active_session_name:
-			sessions[session_name].set_active(authority_id)
+			sessions[session_name].set_active()
+			active_session = sessions[session_name]
 		else:
 			sessions[session_name].disable_ui()
+	hide_ui()
 	
 
 func _request_leaving_session(active_session_name: String) -> void:
@@ -113,7 +70,10 @@ func leave_session_on_client(active_session_name: String) -> void:
 	for session_name in sessions:
 		if session_name == active_session_name:
 			sessions[session_name].set_inactive()
-		sessions[session_name].enabled_ui()
+		sessions[session_name].enable_ui()
+	
+	active_session = null
+	show_ui()
 
 
 func _connected_to_server() -> void:
@@ -136,6 +96,40 @@ func _client_disconnected_from_server(id: int) -> void:
 func _server_disconnected() -> void:
 	%LabelStatus.text = "Server Status: Connection to server lost"
 	%ButtonCreateSession.disabled = true
-	print(%LabelStatus.text)
 	%TimerConnect.start()
+
+
+func _on_session_spawner_spawned(node: Node) -> void:
+	var new_session: GameSession = node as GameSession
+	new_session.JoinRequest.connect(_request_join_session)
+	new_session.LeaveRequest.connect(_request_leaving_session)
+	sessions[new_session.get_session_name()] = new_session
+	_update_no_sessions_label_visibility()
+	# TODO: REMOVE AFTER TESTING
+	if not is_instance_valid(active_session):
+		_request_join_session(new_session.get_session_name())
 	
+
+
+func _on_session_spawner_despawned(node: Node) -> void:
+	var closed_session: GameSession = node as GameSession
+	sessions.erase(closed_session.get_session_name())
+	_update_no_sessions_label_visibility()
+	
+
+func _update_no_sessions_label_visibility() -> void:
+	%LabelNoSessions.visible = sessions.size() == 0
+
+
+func show_ui() -> void:
+	for ui in _get_browser_ui_elements():
+		ui.show()
+	
+	
+func hide_ui() -> void:
+	for ui in _get_browser_ui_elements():
+		ui.hide()
+
+
+func _get_browser_ui_elements() -> Array[Control]:
+	return [%LabelAvailableSessions, %Label_Create_New_Session, %HBoxCreateSession]

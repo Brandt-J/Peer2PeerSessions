@@ -27,7 +27,7 @@ func _ready():
 @rpc("any_peer")
 func create_session(session_name: String, map_name: String) -> void:
 	if len(sessions) == 0:
-		%LabelNoSessions.queue_free()
+		%LabelNoSessions.hide()
 	
 	if session_name in sessions:
 		return
@@ -44,19 +44,17 @@ func create_session(session_name: String, map_name: String) -> void:
 	newSession.Closed.connect(_close_session)
 	
 
-	
-
 @rpc("any_peer")
 func join_session(session_name: String, id: int) -> void:
 	var curSession: GameSession = sessions[session_name]
 	curSession.add_peer(id)
 	_update_peer_labels()
 	
-	rpc_id(id, "client_join_session", session_name, curSession.get_authority_id())
+	rpc_id(id, "client_join_session", session_name)
 
 	
 @rpc
-func client_join_session(_active_session_name: String, _authority_id: int) -> void:
+func client_join_session(_active_session_name: String) -> void:
 	pass
 	
 	

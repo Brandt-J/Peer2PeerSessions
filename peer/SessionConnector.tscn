@@ -25,7 +25,8 @@ layout_mode = 2
 text = "Server Status: Not Connected"
 horizontal_alignment = 1
 
-[node name="Label" type="Label" parent="VBoxContainer"]
+[node name="LabelAvailableSessions" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 20
@@ -45,30 +46,32 @@ layout_mode = 2
 text = "
 "
 
-[node name="Label3" type="Label" parent="VBoxContainer"]
+[node name="Label_Create_New_Session" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 20
 text = "Create New Session:"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="HBoxCreateSession" type="HBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="VBoxContainer/HBoxCreateSession"]
 layout_mode = 2
 text = "Session Name:"
 
-[node name="LineEditSessionName" type="LineEdit" parent="VBoxContainer/HBoxContainer"]
+[node name="LineEditSessionName" type="LineEdit" parent="VBoxContainer/HBoxCreateSession"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 text = "Fun Game Session 1"
 
-[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer"]
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxCreateSession"]
 layout_mode = 2
 text = "   Map:"
 
-[node name="MapSelector" type="OptionButton" parent="VBoxContainer/HBoxContainer"]
+[node name="MapSelector" type="OptionButton" parent="VBoxContainer/HBoxCreateSession"]
 unique_name_in_owner = true
 layout_mode = 2
 selected = 0
@@ -78,7 +81,7 @@ popup/item_0/id = 0
 popup/item_1/text = "Map2"
 popup/item_1/id = 1
 
-[node name="ButtonCreateSession" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="ButtonCreateSession" type="Button" parent="VBoxContainer/HBoxCreateSession"]
 unique_name_in_owner = true
 layout_mode = 2
 disabled = true
@@ -92,5 +95,7 @@ wait_time = 2.0
 _spawnable_scenes = PackedStringArray("uid://di0kvimdenmnx")
 spawn_path = NodePath("../VBoxContainer/HBoxSessions")
 
-[connection signal="pressed" from="VBoxContainer/HBoxContainer/ButtonCreateSession" to="." method="_request_session"]
+[connection signal="pressed" from="VBoxContainer/HBoxCreateSession/ButtonCreateSession" to="." method="_request_session"]
 [connection signal="timeout" from="TimerConnect" to="." method="_try_connecting_to_server"]
+[connection signal="despawned" from="SessionSpawner" to="." method="_on_session_spawner_despawned"]
+[connection signal="spawned" from="SessionSpawner" to="." method="_on_session_spawner_spawned"]

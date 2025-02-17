@@ -59,6 +59,10 @@ func enable_ui() -> void:
 	%ButtonJoin.disabled = false
 
 
+func get_session_time() -> float:
+	return _session_time
+	
+
 func _load_map() -> void:
 	_current_map = load(_mapPath).instantiate()
 	add_child(_current_map)

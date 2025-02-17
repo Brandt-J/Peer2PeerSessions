@@ -2,6 +2,7 @@ extends Node
 class_name NodeReplicator
 
 
+@export var session: GameSession
 var _replicated_nodes: Dictionary[int, Dictionary] = {}  # {playerID, Dict: {nodeID: Node}
 var _connected_peers: Array[int] = []
 var _new_node_id: int = 0
@@ -13,15 +14,22 @@ func _ready() -> void:
 	_replicated_nodes[multiplayer.get_unique_id()] = {}
 
 
-func update_connected_peers(connected_peers: Array[int]) -> void:
-	for new_id in connected_peers:
+func update_connected_peers(updated_connected_peers: Array[int]) -> void:
+	# Add new peers
+	for new_id in updated_connected_peers:
 		if new_id not in _connected_peers and new_id != multiplayer.get_unique_id():
 			_replicate_nodes_to_new_player(new_id)
+		if new_id not in _replicated_nodes:
+			_replicated_nodes[new_id] = {}
 	
-	_connected_peers = connected_peers
-	for id in connected_peers:
-		if id not in _replicated_nodes:
-			_replicated_nodes[id] = {}
+	# Remove old peers
+	for old_id in _connected_peers:
+		if old_id not in updated_connected_peers:
+			for node in _replicated_nodes[old_id].values():
+				node.queue_free()
+			_replicated_nodes.erase(old_id)
+
+	_connected_peers = updated_connected_peers
 
 
 func spawn_node(node_path: String, authority_id: int, node_name: String, pos: Vector3) -> Node3D:
@@ -62,15 +70,13 @@ func _replicate_nodes_to_new_player(player_id: int) -> void:
 	var cur_node: Node3D
 	var node_resource_id: int
 	var own_nodes_dict = _replicated_nodes[multiplayer.get_unique_id()]
-	#for id in _replicated_nodes:
-		#if id == multiplayer.get_unique_id():
-			#continue
 	
 	for node_id in own_nodes_dict:
 		cur_node = own_nodes_dict[node_id]
 		node_resource_id = _spawnable_scenes.find(cur_node.scene_file_path)
 		assert(node_resource_id > -1)
 		node_list.append([node_id, node_resource_id, cur_node.name, cur_node.global_position])
+	
 	rpc_id(player_id, "_receive_nodes_from_peer", multiplayer.get_unique_id(), node_list)
 	
 
@@ -83,3 +89,29 @@ func _receive_nodes_from_peer(peer_id: int, nodes_list: Array[Array]) -> void:
 	for node_info in nodes_list:  # [id, scene_path_id, name, pos]
 		#_spawn_replicated_node(node_path_id: int, authority_id: int, node_name: String, node_id: int, pos: Vector3) -> void:
 		_spawn_replicated_node(node_info[1], peer_id, node_info[2], node_info[0], node_info[3])
+
+
+func _send_node_updates_to_peers() -> void:
+	var own_id: int = multiplayer.get_unique_id()
+	var own_rep_nodes: Dictionary = _replicated_nodes[own_id]
+	var cur_node: Node3D
+	var node_dict: Dictionary[int, Transform3D]
+		
+	for node_id in own_rep_nodes:
+		cur_node = own_rep_nodes[node_id]
+		node_dict[node_id] = cur_node.global_transform
+		#if cur_node.global_position.distance_to()
+	
+	for peer_id in _connected_peers:
+		if peer_id == own_id:
+			continue
+		rpc_id(peer_id, "_receive_node_update", node_dict)
+		
+
+@rpc("any_peer")
+func _receive_node_update(node_dict: Dictionary[int, Transform3D]) -> void:
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	var rep_node_dict: Dictionary = _replicated_nodes[sender_id]
+	for node_id in node_dict:
+		rep_node_dict[node_id].global_transform = node_dict[node_id]
+	

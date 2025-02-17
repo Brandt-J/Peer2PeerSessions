@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://di0kvimdenmnx"]
 
 [ext_resource type="Script" uid="uid://bxsd3b8bgpdly" path="res://game_session.gd" id="1_chf5y"]
-[ext_resource type="Script" uid="uid://csvqmdw26j3dq" path="res://session_node_spawner.gd" id="2_clpoe"]
+[ext_resource type="PackedScene" uid="uid://cwdurft50210h" path="res://SessionReplicator.tscn" id="2_clpoe"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_clpoe"]
 resource_local_to_scene = true
@@ -96,8 +96,8 @@ text = "Leave"
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_chf5y")
 
-[node name="SessionNodeReplicator" type="Node" parent="."]
-script = ExtResource("2_clpoe")
+[node name="SessionNodeReplicator" parent="." node_paths=PackedStringArray("session") instance=ExtResource("2_clpoe")]
+session = NodePath("..")
 
 [node name="TimeSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_interval = 1.0

@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwdurft50210h"]
+
+[ext_resource type="Script" uid="uid://csvqmdw26j3dq" path="res://session_node_spawner.gd" id="1_bugit"]
+
+[node name="SessionNodeReplicator" type="Node"]
+script = ExtResource("1_bugit")
+
+[node name="UpdateTimer" type="Timer" parent="."]
+wait_time = 0.2
+autostart = true
+
+[connection signal="timeout" from="UpdateTimer" to="." method="_send_node_updates_to_peers"]

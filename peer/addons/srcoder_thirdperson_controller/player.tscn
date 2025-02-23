@@ -1,22 +1,19 @@
-[gd_scene load_steps=7 format=3 uid="uid://dgaexk2mqn6j8"]
+[gd_scene load_steps=8 format=3 uid="uid://dgaexk2mqn6j8"]
 
 [ext_resource type="Script" uid="uid://ylm80vsvvkef" path="res://addons/srcoder_thirdperson_controller/assets/player.gd" id="1_4s81h"]
 [ext_resource type="PackedScene" uid="uid://1sf4ra6r1vlk" path="res://addons/srcoder_thirdperson_controller/assets/character-male-e.glb" id="1_jt3wm"]
-[ext_resource type="Script" uid="uid://d10jhcafiwru4" path="res://addons/srcoder_thirdperson_controller/assets/camera_pivot.gd" id="3_0ffrl"]
+[ext_resource type="PackedScene" uid="uid://bp1yjeds4ji62" path="res://addons/srcoder_thirdperson_controller/camera_pivot.tscn" id="2_q24nv"]
+[ext_resource type="Script" uid="uid://c5pbctwrpu1ib" path="res://selective_synchronizer.gd" id="4_gsgtm"]
+[ext_resource type="PackedScene" uid="uid://c0enjsuoetaan" path="res://Misc/NPCSpawner.tscn" id="4_q24nv"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_71pwh"]
 radius = 0.274773
 height = 0.721095
 
-[sub_resource type="SeparationRayShape3D" id="SeparationRayShape3D_exdnv"]
-
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_6sduc"]
-properties/0/path = NodePath("playermodel/character-male-e2/AnimationPlayer:current_animation")
+properties/0/path = NodePath(".:player_animation_state")
 properties/0/spawn = true
-properties/0/replication_mode = 1
-properties/1/path = NodePath("playermodel:basis")
-properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/0/replication_mode = 2
 
 [node name="Player" type="CharacterBody3D"]
 collision_layer = 2
@@ -26,15 +23,7 @@ script = ExtResource("1_4s81h")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.358072, 0)
 shape = SubResource("CapsuleShape3D_71pwh")
 
-[node name="camera_pivot" type="Node3D" parent="."]
-script = ExtResource("3_0ffrl")
-
-[node name="SpringArm3D" type="SpringArm3D" parent="camera_pivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.512907, 0)
-shape = SubResource("SeparationRayShape3D_exdnv")
-spring_length = 3.0
-
-[node name="Camera3D" type="Camera3D" parent="camera_pivot/SpringArm3D"]
+[node name="Camera" parent="." instance=ExtResource("2_q24nv")]
 
 [node name="playermodel" type="Node3D" parent="."]
 
@@ -47,5 +36,9 @@ bones/5/rotation = Quaternion(0, 0, 0.382683, 0.92388)
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_6sduc")
+public_visibility = false
+script = ExtResource("4_gsgtm")
+
+[node name="NpcSpawner" parent="." instance=ExtResource("4_q24nv")]
 
 [editable path="playermodel/character-male-e2"]

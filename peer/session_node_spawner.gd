@@ -1,40 +1,59 @@
 extends Node
-class_name NodeReplicator
+class_name SessionNodeReplicator
 
 
 @export var session: GameSession
+var _active: bool = false
 var _replicated_nodes: Dictionary[int, Dictionary] = {}  # {playerID, Dict: {nodeID: Node}
 var _connected_peers: Array[int] = []
 var _new_node_id: int = 0
 var _node_templates: Dictionary[String, PackedScene] = {}
 var _spawnable_scenes: Array[String] = ["res://addons/srcoder_thirdperson_controller/player.tscn"]
+@onready var _update_timer: Timer = $UpdateTimer
+@onready var _logger: Logging.Logger = Logging.get_logger("SessionNodeReplicator")
 
 
 func _ready() -> void:
 	_replicated_nodes[multiplayer.get_unique_id()] = {}
 
 
-func update_connected_peers(updated_connected_peers: Array[int]) -> void:
-	# Add new peers
-	for new_id in updated_connected_peers:
-		if new_id not in _connected_peers and new_id != multiplayer.get_unique_id():
-			_replicate_nodes_to_new_player(new_id)
-		if new_id not in _replicated_nodes:
-			_replicated_nodes[new_id] = {}
+func start() -> void:
+	_active = true
+	_update_timer.start()
+
+
+func stop() -> void:
+	_active = false
+	_update_timer.stop()
+	_reset_replicated_nodes()
 	
+
+func update_connected_peers(updated_connected_peers: Array[int]) -> void:
 	# Remove old peers
 	for old_id in _connected_peers:
 		if old_id not in updated_connected_peers:
-			for node in _replicated_nodes[old_id].values():
-				node.queue_free()
-			_replicated_nodes.erase(old_id)
-
+			if old_id in _replicated_nodes:
+				for node in _replicated_nodes[old_id].values():
+					node.queue_free()
+				_replicated_nodes.erase(old_id)
+	
+	if _active:
+		# Add new peers
+		for new_id in updated_connected_peers:
+			if new_id not in _connected_peers and new_id != multiplayer.get_unique_id():
+				_replicate_nodes_to_new_player(new_id)
+			if new_id not in _replicated_nodes:
+				_replicated_nodes[new_id] = {}
+	
 	_connected_peers = updated_connected_peers
 
 
-func spawn_node(node_path: String, authority_id: int, node_name: String, pos: Vector3) -> Node3D:
+func spawn_node(node_path: String, node_name: String, pos: Vector3) -> Node3D:
 	var node_path_id: int = _spawnable_scenes.find(node_path)
 	assert(node_path_id > -1)
+	assert(_active)
+	
+	var authority_id: int = multiplayer.get_unique_id()
 	_spawn_replicated_node(node_path_id, authority_id, node_name, _new_node_id, pos)
 	for id in _connected_peers:
 		if id != multiplayer.get_unique_id():
@@ -46,6 +65,9 @@ func spawn_node(node_path: String, authority_id: int, node_name: String, pos: Ve
 
 @rpc("any_peer", "call_local")
 func _spawn_replicated_node(node_path_id: int, authority_id: int, node_name: String, node_id: int, pos: Vector3) -> void:
+	if not _active:
+		return
+		
 	var node: Node3D
 	var node_path: String = _spawnable_scenes[node_path_id]
 	if node_path not in _node_templates:
@@ -82,7 +104,10 @@ func _replicate_nodes_to_new_player(player_id: int) -> void:
 
 @rpc("any_peer")
 func _receive_nodes_from_peer(peer_id: int, nodes_list: Array[Array]) -> void:
-	print("Receiving nodes from ", peer_id)
+	if not _active:
+		return
+		
+	_logger.info("Receiving nodes from %s" % peer_id)
 	if peer_id not in _replicated_nodes:
 		_replicated_nodes[peer_id] = {}
 
@@ -92,6 +117,9 @@ func _receive_nodes_from_peer(peer_id: int, nodes_list: Array[Array]) -> void:
 
 
 func _send_node_updates_to_peers() -> void:
+	if not _active:
+		return
+		
 	var own_id: int = multiplayer.get_unique_id()
 	var own_rep_nodes: Dictionary = _replicated_nodes[own_id]
 	var cur_node: Node3D
@@ -100,7 +128,6 @@ func _send_node_updates_to_peers() -> void:
 	for node_id in own_rep_nodes:
 		cur_node = own_rep_nodes[node_id]
 		node_dict[node_id] = cur_node.global_transform
-		#if cur_node.global_position.distance_to()
 	
 	for peer_id in _connected_peers:
 		if peer_id == own_id:
@@ -111,7 +138,17 @@ func _send_node_updates_to_peers() -> void:
 @rpc("any_peer")
 func _receive_node_update(node_dict: Dictionary[int, Transform3D]) -> void:
 	var sender_id: int = multiplayer.get_remote_sender_id()
+	if not _active or sender_id not in _replicated_nodes:
+		return
+		
 	var rep_node_dict: Dictionary = _replicated_nodes[sender_id]
 	for node_id in node_dict:
 		rep_node_dict[node_id].global_transform = node_dict[node_id]
+
+
+func _reset_replicated_nodes() -> void:
+	for id in _replicated_nodes:
+		for node in _replicated_nodes[id].values():
+			node.queue_free()
 	
+	_replicated_nodes = {}

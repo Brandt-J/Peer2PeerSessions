@@ -34,8 +34,9 @@ func add_peer(id: int) -> void:
 
 
 func remove_peer(id: int) -> void:
-	_connected_peers.erase(id)
-	_update_id_labels()
+	if id in _connected_peers:
+		_connected_peers.erase(id)
+		_update_id_labels()
 
 
 func get_peers() -> Array[int]:

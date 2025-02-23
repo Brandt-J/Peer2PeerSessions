@@ -90,11 +90,16 @@ func _update_peer_labels() -> void:
 		child.queue_free()
 	
 	var newLbl: Label
-	for id in _get_peers_in_lobby():
+	var ids_in_lobby: Array[int] = _get_peers_in_lobby()
+	if len(ids_in_lobby) == 0:
 		newLbl = Label.new()
-		newLbl.text = str(id)
-		%HBoxPeers.add_child(newLbl)
-		newLbl.set_owner(%HBoxPeers)
+		newLbl.text = "No players connected.."
+	else:
+		for id in ids_in_lobby:
+			newLbl = Label.new()
+			newLbl.text = str(id)
+			%HBoxPeers.add_child(newLbl)
+			newLbl.set_owner(%HBoxPeers)
 	
 
 func _get_peers_in_lobby() -> Array[int]:

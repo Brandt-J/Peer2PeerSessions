@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://bp1yjeds4ji62"]
+
+[ext_resource type="Script" uid="uid://d10jhcafiwru4" path="res://addons/srcoder_thirdperson_controller/assets/camera_pivot.gd" id="1_xxmy6"]
+
+[sub_resource type="SeparationRayShape3D" id="SeparationRayShape3D_exdnv"]
+
+[node name="Camera" type="Node3D"]
+top_level = true
+script = ExtResource("1_xxmy6")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.819152, 0.573576, 0, -0.573576, 0.819152, 0, 1.173, 0)
+shape = SubResource("SeparationRayShape3D_exdnv")
+spring_length = 3.0
+
+[node name="Camera3D" type="Camera3D" parent="SpringArm3D"]

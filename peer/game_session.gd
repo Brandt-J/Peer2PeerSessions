@@ -14,7 +14,7 @@ var _mapPath: String = "res://Maps/Map1.tscn"
 var _connected_peers: Array[int] = []
 var _session_time: float = 0.0
 
-@onready var _node_replicator: NodeReplicator = $SessionNodeReplicator
+@onready var _node_replicator = $SessionNodeReplicator
 
 
 func _ready():
@@ -37,6 +37,7 @@ func set_active() -> void:
 	var style: StyleBoxFlat = get_theme_stylebox("panel") as StyleBoxFlat
 	style.bg_color = color_active
 	_load_map()
+	NetworkManager.set_session_replicator(_node_replicator)
 	_spawn_local_player()
 
 
@@ -46,6 +47,7 @@ func set_inactive() -> void:
 	%ButtonLeave.disabled = true
 	var style: StyleBoxFlat = get_theme_stylebox("panel") as StyleBoxFlat
 	style.bg_color = color_inactive
+	NetworkManager.invalidate_session_replicator()
 	if is_instance_valid(_current_map):
 		_unload_map()
 	
@@ -73,7 +75,7 @@ func _spawn_local_player() -> void:
 	var scene: String = "res://addons/srcoder_thirdperson_controller/player.tscn"
 	var id: int = multiplayer.get_unique_id()
 	var pos: Vector3 = _current_map.get_free_spawn_location()
-	var player: Player = _node_replicator.spawn_node(scene, id, "Player %s" % id, pos) as Player
+	var player: Player = NetworkManager.spawn_node(scene, "Player %s" % id, pos) as Player
 	player.activate()
 	
 	
@@ -94,4 +96,5 @@ func _on_multiplayer_synchronizer_synchronized():
 	%LabelSessionName.text = _session_name
 	%LabelMap.text = _map_name
 	%LabelNumPlayers.text = str(len(_connected_peers))
+	NetworkManager.connected_peers_updated.emit(_connected_peers)
 	_node_replicator.update_connected_peers(_connected_peers)

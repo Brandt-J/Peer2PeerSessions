@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0enjsuoetaan"]
+
+[ext_resource type="Script" uid="uid://bipsnfojcheql" path="res://Misc/npc_spawner.gd" id="1_8paou"]
+
+[node name="NpcSpawner" type="Node"]
+script = ExtResource("1_8paou")

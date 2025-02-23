@@ -5,7 +5,7 @@ var PORT: int = 31415
 var sessions: Dictionary[String, GameSession] = {}
 var active_session: GameSession = null
 
-var _initial_join: bool = false
+@onready var _logger: Logging.Logger = Logging.get_logger("SessionConnector")
 
 
 func _ready() -> void:
@@ -16,7 +16,7 @@ func _ready() -> void:
 	multiplayer.server_disconnected.connect(_server_disconnected)
 	%TimerConnect.start()
 	await get_tree().create_timer(3).timeout
-	print("Requesting to join ", "Master Session")
+	_logger.info("Requesting to join Master Session")
 	_request_join_session("Master Session")
 	
 
@@ -26,7 +26,7 @@ func _try_connecting_to_server() -> void:
 	if not error:
 		multiplayer.multiplayer_peer = peer
 	else:
-		print("Could not create peer to ip %s on port %s. Error: %s" % [IP_ADDRESS, PORT, error])
+		_logger.info("Could not create peer to ip %s on port %s. Error: %s" % [IP_ADDRESS, PORT, error])
 
 
 func _request_session() -> void:
@@ -39,9 +39,10 @@ func _request_join_session(active_session_name: String) -> void:
 
 @rpc
 func client_join_session(active_session_name: String) -> void:
+	NetworkManager.invalidate_session_replicator()
 	if active_session != null:
 		active_session.set_inactive()
-		
+	
 	active_session = null
 	for session_name in sessions:
 		if session_name == active_session_name:
@@ -79,24 +80,25 @@ func leave_session_on_client(active_session_name: String) -> void:
 		sessions[session_name].enable_ui()
 	
 	active_session = null
+	NetworkManager.invalidate_session_replicator()
 	show_ui()
 
 
 func _connected_to_server() -> void:
 	%LabelStatus.text = "Server Status: Successfully connected to Server. ID = %s" % multiplayer.get_unique_id()
-	print(%LabelStatus.text)
+	_logger.info(%LabelStatus.text)
 	%ButtonCreateSession.disabled = false
 	%TimerConnect.stop()
 
 
 func _connection_failed() -> void:
 	%LabelStatus.text = "Server Status: Could not connect to server"
-	print(%LabelStatus.text)
+	_logger.info(%LabelStatus.text)
 	
 
 
 func _client_disconnected_from_server(id: int) -> void:
-	print("Client %s disconnected from server" % id)
+	_logger.info("Client %s disconnected from server" % id)
 
 
 func _server_disconnected() -> void:

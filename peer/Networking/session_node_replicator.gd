@@ -11,6 +11,7 @@ var _node_templates: Dictionary[String, PackedScene] = {}
 var _spawnable_scenes: Array[String] = ["res://addons/srcoder_thirdperson_controller/player.tscn"]
 @onready var _update_timer: Timer = $UpdateTimer
 @onready var _logger: Logging.Logger = Logging.get_logger("SessionNodeReplicator")
+@onready var _node_interp: NodeTransformInterpolation = $NodeTransformInterpolation
 
 
 func _ready() -> void:
@@ -19,11 +20,13 @@ func _ready() -> void:
 
 func start() -> void:
 	_active = true
+	_node_interp.activate()
 	_update_timer.start()
 
 
 func stop() -> void:
 	_active = false
+	_node_interp.stop()
 	_update_timer.stop()
 	_reset_replicated_nodes()
 	
@@ -132,18 +135,23 @@ func _send_node_updates_to_peers() -> void:
 	for peer_id in _connected_peers:
 		if peer_id == own_id:
 			continue
-		rpc_id(peer_id, "_receive_node_update", node_dict)
+		rpc_id(peer_id, "_receive_node_update", node_dict, NetworkManager.get_session_time())
 		
 
 @rpc("any_peer")
-func _receive_node_update(node_dict: Dictionary[int, Transform3D]) -> void:
+func _receive_node_update(node_dict: Dictionary[int, Transform3D], session_time: float) -> void:
 	var sender_id: int = multiplayer.get_remote_sender_id()
 	if not _active or sender_id not in _replicated_nodes:
 		return
-		
-	var rep_node_dict: Dictionary = _replicated_nodes[sender_id]
-	for node_id in node_dict:
-		rep_node_dict[node_id].global_transform = node_dict[node_id]
+	
+	_node_interp.register_node_transform_update(sender_id, session_time, node_dict)
+	#var rep_node_dict: Dictionary = _replicated_nodes[sender_id]
+	#for node_id in node_dict:
+		#rep_node_dict[node_id].global_transform = node_dict[node_id]
+
+
+func get_replicated_nodes_of_player(player_id: int) -> Dictionary:
+	return _replicated_nodes[player_id]
 
 
 func _reset_replicated_nodes() -> void:

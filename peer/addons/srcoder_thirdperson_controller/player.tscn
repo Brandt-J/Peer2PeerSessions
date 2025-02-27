@@ -1,9 +1,9 @@
 [gd_scene load_steps=8 format=3 uid="uid://dgaexk2mqn6j8"]
 
 [ext_resource type="Script" uid="uid://ylm80vsvvkef" path="res://addons/srcoder_thirdperson_controller/assets/player.gd" id="1_4s81h"]
-[ext_resource type="PackedScene" uid="uid://1sf4ra6r1vlk" path="res://addons/srcoder_thirdperson_controller/assets/character-male-e.glb" id="1_jt3wm"]
+[ext_resource type="PackedScene" uid="uid://ccf670c6bkob8" path="res://addons/srcoder_thirdperson_controller/assets/character-male-e.glb" id="1_jt3wm"]
 [ext_resource type="PackedScene" uid="uid://bp1yjeds4ji62" path="res://addons/srcoder_thirdperson_controller/camera_pivot.tscn" id="2_q24nv"]
-[ext_resource type="Script" uid="uid://c5pbctwrpu1ib" path="res://selective_synchronizer.gd" id="4_gsgtm"]
+[ext_resource type="Script" uid="uid://c5pbctwrpu1ib" path="res://Networking/selective_synchronizer.gd" id="4_gsgtm"]
 [ext_resource type="PackedScene" uid="uid://c0enjsuoetaan" path="res://Misc/NPCSpawner.tscn" id="4_q24nv"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_71pwh"]

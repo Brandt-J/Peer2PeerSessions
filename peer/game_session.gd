@@ -37,7 +37,7 @@ func set_active() -> void:
 	var style: StyleBoxFlat = get_theme_stylebox("panel") as StyleBoxFlat
 	style.bg_color = color_active
 	_load_map()
-	NetworkManager.set_session_replicator(_node_replicator)
+	NetworkManager.set_game_session(self, _node_replicator)
 	_spawn_local_player()
 
 
@@ -47,7 +47,7 @@ func set_inactive() -> void:
 	%ButtonLeave.disabled = true
 	var style: StyleBoxFlat = get_theme_stylebox("panel") as StyleBoxFlat
 	style.bg_color = color_inactive
-	NetworkManager.invalidate_session_replicator()
+	NetworkManager.invalidate_game_session()
 	if is_instance_valid(_current_map):
 		_unload_map()
 	

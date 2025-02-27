@@ -39,7 +39,7 @@ func _request_join_session(active_session_name: String) -> void:
 
 @rpc
 func client_join_session(active_session_name: String) -> void:
-	NetworkManager.invalidate_session_replicator()
+	NetworkManager.invalidate_game_session()
 	if active_session != null:
 		active_session.set_inactive()
 	
@@ -80,7 +80,7 @@ func leave_session_on_client(active_session_name: String) -> void:
 		sessions[session_name].enable_ui()
 	
 	active_session = null
-	NetworkManager.invalidate_session_replicator()
+	NetworkManager.invalidate_game_session()
 	show_ui()
 
 

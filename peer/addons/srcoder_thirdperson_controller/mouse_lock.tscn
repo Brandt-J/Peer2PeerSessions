@@ -1,6 +1,26 @@
-[gd_scene load_steps=2 format=3 uid="uid://bqq0svy5fwdin"]
+[gd_scene load_steps=2 format=3 uid="uid://cp5xe1x7nbhwq"]
 
-[ext_resource type="Script" path="res://addons/srcoder_thirdperson_controller/assets/mouse_lock.gd" id="1_rl4t2"]
+[sub_resource type="GDScript" id="GDScript_0j4nh"]
+script/source = "extends Node
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func _exit_tree() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		if event.pressed and event.keycode == KEY_ESCAPE:
+			#togglemouse
+			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			else:
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+"
 
 [node name="MouseLock" type="Node"]
-script = ExtResource("1_rl4t2")
+script = SubResource("GDScript_0j4nh")

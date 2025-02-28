@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://ct2ng7fxsa7ho"]
+
+[ext_resource type="PackedScene" uid="uid://dgaexk2mqn6j8" path="res://addons/srcoder_thirdperson_controller/character.tscn" id="1_ydrf3"]
+[ext_resource type="Script" uid="uid://ytn8rif3cmo" path="res://Characters/npc.gd" id="2_fdqs8"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fdqs8"]
+transparency = 1
+albedo_color = Color(1.41986e-06, 0.435094, 0.252467, 0.847059)
+
+[node name="NPC" instance=ExtResource("1_ydrf3")]
+script = ExtResource("2_fdqs8")
+speed = 2.5
+
+[node name="playermodel" parent="." index="1"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0, 0)
+
+[node name="body-mesh" parent="playermodel/character-male-e2/character-male-e/Skeleton3D" index="0"]
+material_overlay = SubResource("StandardMaterial3D_fdqs8")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." index="3"]
+
+[connection signal="target_reached" from="NavigationAgent3D" to="." method="_set_new_navigation_target"]
+
+[editable path="playermodel/character-male-e2"]

@@ -1,10 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://dgaexk2mqn6j8"]
+[gd_scene load_steps=6 format=3 uid="uid://dgaexk2mqn6j8"]
 
-[ext_resource type="Script" uid="uid://ylm80vsvvkef" path="res://addons/srcoder_thirdperson_controller/assets/player.gd" id="1_4s81h"]
-[ext_resource type="PackedScene" uid="uid://ccf670c6bkob8" path="res://addons/srcoder_thirdperson_controller/assets/character-male-e.glb" id="1_jt3wm"]
-[ext_resource type="PackedScene" uid="uid://bp1yjeds4ji62" path="res://addons/srcoder_thirdperson_controller/camera_pivot.tscn" id="2_q24nv"]
-[ext_resource type="Script" uid="uid://c5pbctwrpu1ib" path="res://Networking/selective_synchronizer.gd" id="4_gsgtm"]
-[ext_resource type="PackedScene" uid="uid://c0enjsuoetaan" path="res://Misc/NPCSpawner.tscn" id="4_q24nv"]
+[ext_resource type="Script" uid="uid://ylm80vsvvkef" path="res://addons/srcoder_thirdperson_controller/assets/character.gd" id="1_xxonk"]
+[ext_resource type="PackedScene" uid="uid://ccf670c6bkob8" path="res://addons/srcoder_thirdperson_controller/assets/character-male-e.glb" id="3_0rkxw"]
+[ext_resource type="Script" uid="uid://c5pbctwrpu1ib" path="res://Networking/selective_synchronizer.gd" id="4_3wp4e"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_71pwh"]
 radius = 0.274773
@@ -15,19 +13,17 @@ properties/0/path = NodePath(".:player_animation_state")
 properties/0/spawn = true
 properties/0/replication_mode = 2
 
-[node name="Player" type="CharacterBody3D"]
+[node name="Character" type="CharacterBody3D"]
 collision_layer = 2
-script = ExtResource("1_4s81h")
+script = ExtResource("1_xxonk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.358072, 0)
 shape = SubResource("CapsuleShape3D_71pwh")
 
-[node name="Camera" parent="." instance=ExtResource("2_q24nv")]
-
 [node name="playermodel" type="Node3D" parent="."]
 
-[node name="character-male-e2" parent="playermodel" instance=ExtResource("1_jt3wm")]
+[node name="character-male-e2" parent="playermodel" instance=ExtResource("3_0rkxw")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0.0071882, 0)
 
 [node name="Skeleton3D" parent="playermodel/character-male-e2/character-male-e" index="0"]
@@ -37,8 +33,6 @@ bones/5/rotation = Quaternion(0, 0, 0.382683, 0.92388)
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_6sduc")
 public_visibility = false
-script = ExtResource("4_gsgtm")
-
-[node name="NpcSpawner" parent="." instance=ExtResource("4_q24nv")]
+script = ExtResource("4_3wp4e")
 
 [editable path="playermodel/character-male-e2"]

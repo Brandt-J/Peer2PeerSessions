@@ -8,7 +8,9 @@ var _replicated_nodes: Dictionary[int, Dictionary] = {}  # {playerID, Dict: {nod
 var _connected_peers: Array[int] = []
 var _new_node_id: int = 0
 var _node_templates: Dictionary[String, PackedScene] = {}
-var _spawnable_scenes: Array[String] = ["res://addons/srcoder_thirdperson_controller/player.tscn"]
+var _spawnable_scenes: Array[String] = [
+	"res://Characters/Player.tscn",
+	"res://Characters/NPC.tscn"]
 @onready var _update_timer: Timer = $UpdateTimer
 @onready var _logger: Logging.Logger = Logging.get_logger("SessionNodeReplicator")
 @onready var _node_interp: NodeTransformInterpolation = $NodeTransformInterpolation

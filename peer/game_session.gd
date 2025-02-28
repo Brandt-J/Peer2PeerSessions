@@ -11,6 +11,7 @@ var activeSession: bool = false
 var _map_name: String
 var _current_map: GameMap
 var _mapPath: String = "res://Maps/Map1.tscn"
+var _player_scene_path: String = "res://Characters/Player.tscn"
 var _connected_peers: Array[int] = []
 var _session_time: float = 0.0
 
@@ -72,10 +73,9 @@ func _load_map() -> void:
 	
 	
 func _spawn_local_player() -> void:
-	var scene: String = "res://addons/srcoder_thirdperson_controller/player.tscn"
 	var id: int = multiplayer.get_unique_id()
 	var pos: Vector3 = _current_map.get_free_spawn_location()
-	var player: Player = NetworkManager.spawn_node(scene, "Player %s" % id, pos) as Player
+	var player: Player = NetworkManager.spawn_node(_player_scene_path, "Player %s" % id, pos) as Player
 	player.activate()
 	
 	

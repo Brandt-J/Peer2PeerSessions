@@ -1,0 +1,15 @@
+[gd_scene load_steps=5 format=3 uid="uid://pxyadmkf5cva"]
+
+[ext_resource type="PackedScene" uid="uid://dgaexk2mqn6j8" path="res://addons/srcoder_thirdperson_controller/character.tscn" id="1_t8hoq"]
+[ext_resource type="Script" uid="uid://cf86573utpc6c" path="res://Characters/player.gd" id="2_1ju47"]
+[ext_resource type="PackedScene" uid="uid://bp1yjeds4ji62" path="res://addons/srcoder_thirdperson_controller/camera_pivot.tscn" id="3_ynroq"]
+[ext_resource type="PackedScene" uid="uid://c0enjsuoetaan" path="res://Misc/NPCSpawner.tscn" id="4_ynroq"]
+
+[node name="Player" instance=ExtResource("1_t8hoq")]
+script = ExtResource("2_1ju47")
+
+[node name="Camera" parent="." index="3" instance=ExtResource("3_ynroq")]
+
+[node name="NpcSpawner" parent="." index="4" instance=ExtResource("4_ynroq")]
+
+[editable path="playermodel/character-male-e2"]

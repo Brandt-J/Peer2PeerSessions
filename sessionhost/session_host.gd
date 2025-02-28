@@ -23,6 +23,8 @@ func _ready():
 	%LabelServerState.text = "Server Running"
 	create_session("Master Session", "TestMap")
 	create_session("Krasse Session", "TestMap2")
+	
+	print("Server Running")
 
 
 @rpc("any_peer")

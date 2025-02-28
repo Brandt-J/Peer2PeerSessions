@@ -1,6 +1,6 @@
 extends Control
 
-var IP_ADDRESS: String = "127.0.0.1"
+var IP_ADDRESS: String = "5.189.191.115"  # "127.0.0.1"
 var PORT: int = 31415
 var sessions: Dictionary[String, GameSession] = {}
 var active_session: GameSession = null

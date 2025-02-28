@@ -39,26 +39,32 @@ func _physics_process(_delta: float):
 		return
 		
 	var player_world_states: Dictionary  # key: time, val: Dictionary[id: Transform3D]
-	var prev_world_state: Dictionary
-	var next_world_state: Dictionary
+	var interp_factor: float
 	var cur_render_time: float = NetworkManager.get_session_time() - render_delay/1000
-	var player_nodes: Dictionary = {}  # Key: NodeID, val: Node3D
-	
 	for player_id in worldstates.keys():
+		if player_id == multiplayer.get_unique_id():
+			continue
+			
 		player_world_states = worldstates[player_id]
 		if len(player_world_states) < 2:
 			continue
-		player_world_states = player_world_states
+
 		_get_last_and_next_time_stamps(player_world_states, cur_render_time)
-		
-		var interpFactor = float(cur_render_time - prev_time_stamp) / float(next_time_stamp - prev_time_stamp)
-		interpFactor = clampf(interpFactor, 0.0, 1.0)
-		prev_world_state = player_world_states[prev_time_stamp]  # key: int, val: Transform3D
-		next_world_state = player_world_states[next_time_stamp]  # key: int, val: Transform3D
-		player_nodes = NetworkManager.get_replicated_nodes_of_player(player_id)
-		for id in player_nodes:
-			if id in prev_world_state and id in next_world_state:
-				player_nodes[id].global_transform = prev_world_state[id].interpolate_with(next_world_state[id], interpFactor)
+		interp_factor = float(cur_render_time - prev_time_stamp) / float(next_time_stamp - prev_time_stamp)
+		interp_factor = clampf(interp_factor, 0.0, 1.0)
+		_interpolate_nodes_of_player_id(player_id, player_world_states, interp_factor)
+
+
+func _interpolate_nodes_of_player_id(player_id: int, player_world_states: Dictionary, interp_factor: float) -> void:
+	var prev_world_state: Dictionary = player_world_states[prev_time_stamp]  # key: int, val: Transform3D
+	var next_world_state: Dictionary = player_world_states[next_time_stamp]  # key: int, val: Transform3D
+	var target_transform: Transform3D
+	var player_nodes: Dictionary = NetworkManager.get_replicated_nodes_of_player(player_id)  # Key: NodeID, val: Node3D
+	for id in player_nodes:
+		if id in prev_world_state and id in next_world_state:
+			target_transform = prev_world_state[id].interpolate_with(next_world_state[id], interp_factor)
+			if target_transform.is_finite():
+				player_nodes[id].global_transform = target_transform
 
 
 func _update_connected_peers(connected_peers: Array[int]) -> void:

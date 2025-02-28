@@ -20,7 +20,7 @@ func _physics_process(delta: float) -> void:
 
 func _set_new_navigation_target():
 	if is_multiplayer_authority():
-		var extent: float = 10.0
+		var extent: float = 20.0
 		var target: Vector3 = Vector3(randf_range(-extent, extent), 0.0, randf_range(-extent, extent))
 		_logger.debug("NPC %s with target %s" % [name, target])
 		await get_tree().create_timer(0.5).timeout

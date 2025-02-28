@@ -3,7 +3,7 @@ class_name NPCSpawner
 
 var num_npcs: int = 50
 var npc_node_path: String = "res://Characters/NPC.tscn"
-@export var extent: float = 5.0
+@export var extent: float = 20.0
 
 
 func spawn_npcs() -> void:

@@ -2,7 +2,7 @@ extends Control
 
 @export var font_size: int = 10
 @export var max_chars_per_line: int = 40
-@export var ui_log: bool = true
+@export var ui_log: bool = false
 
 var _loggers: Dictionary = {}  # key: Logger name, value: Logger object
 var _labels: Array[Label] = []
@@ -66,6 +66,9 @@ func get_logger(logger_name: String = "default") -> Logger:
 
 
 func _on_message_logged(msg: String) -> void:
+	if not ui_log:
+		return
+		
 	if len(_labels) > _max_entries:
 		_labels[0].queue_free()
 	

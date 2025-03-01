@@ -6,6 +6,7 @@ var _last_connected_peers: Array[int] = []
 
 func _ready() -> void:
 	NetworkManager.connected_peers_updated.connect(_update_connected_peers)
+	_update_connected_peers(NetworkManager.get_connected_peers())
 
 
 func _update_connected_peers(connected_peers: Array[int]) -> void:

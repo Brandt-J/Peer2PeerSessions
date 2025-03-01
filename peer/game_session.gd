@@ -66,6 +66,10 @@ func get_session_time() -> float:
 	return _session_time
 	
 
+func get_connected_peers() -> Array[int]:
+	return _connected_peers
+
+
 func _load_map() -> void:
 	_current_map = load(_mapPath).instantiate()
 	add_child(_current_map)

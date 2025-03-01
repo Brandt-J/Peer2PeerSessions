@@ -18,6 +18,7 @@ func activate() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not is_multiplayer_authority():
+		super._physics_process(delta)
 		return
 		
 	# Handle jump.

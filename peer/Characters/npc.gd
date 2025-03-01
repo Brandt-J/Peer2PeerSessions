@@ -1,20 +1,24 @@
 extends Character
 class_name NPC
 
+
 @onready var _nav_agent: NavigationAgent3D = $NavigationAgent3D
 @onready var _logger: Logging.Logger = Logging.get_logger("NPC")
 
 func _ready():
+	speed = randf_range(2.0, 3.0)
+	animation_speed = randf_range(0.7, 1.3)
 	await get_tree().create_timer(0.5).timeout
 	_set_new_navigation_target()
 
 
 func _physics_process(delta: float) -> void:
-	var target_pos: Vector3 = _nav_agent.get_next_path_position()
-	if global_position.distance_to(target_pos) > 0.5:
-		direction = global_position.direction_to(target_pos)
-	else:
-		direction = Vector3()
+	if is_multiplayer_authority():
+		var target_pos: Vector3 = _nav_agent.get_next_path_position()
+		if global_position.distance_to(target_pos) > 0.5:
+			direction = global_position.direction_to(target_pos)
+		else:
+			direction = Vector3()
 	super._physics_process(delta)
 
 

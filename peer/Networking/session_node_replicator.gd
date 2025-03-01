@@ -68,6 +68,16 @@ func spawn_node(node_path: String, node_name: String, pos: Vector3) -> Node3D:
 	return spawned_node
 
 
+func remove_node(node: Node3D) -> void:
+	var auth_id: int = multiplayer.get_unique_id()
+	for node_id in _replicated_nodes[auth_id]:
+		if _replicated_nodes[auth_id][node_id] == node:
+			#_remove_replicated_node(auth_id, node_id)
+			for peer_id in _connected_peers:
+				rpc_id(peer_id, "_remove_replicated_node", auth_id, node_id)
+			break
+
+
 @rpc("any_peer", "call_local")
 func _spawn_replicated_node(node_path_id: int, authority_id: int, node_name: String, node_id: int, pos: Vector3) -> void:
 	if not _active:
@@ -90,6 +100,13 @@ func _spawn_replicated_node(node_path_id: int, authority_id: int, node_name: Str
 		_replicated_nodes[authority_id] = {}
 		
 	_replicated_nodes[authority_id][node_id] = node
+
+
+@rpc("any_peer", "call_local")
+func _remove_replicated_node(authority_id: int, node_id: int) -> void:
+	var node: Node3D = _replicated_nodes[authority_id][node_id]
+	node.queue_free()
+	_replicated_nodes[authority_id].erase(node_id)
 
 
 func _replicate_nodes_to_new_player(player_id: int) -> void:
@@ -125,19 +142,19 @@ func _send_node_updates_to_peers() -> void:
 	if not _active:
 		return
 		
-	var own_id: int = multiplayer.get_unique_id()
-	var own_rep_nodes: Dictionary = _replicated_nodes[own_id]
-	var cur_node: Node3D
-	var node_dict: Dictionary[int, Transform3D]
-		
-	for node_id in own_rep_nodes:
-		cur_node = own_rep_nodes[node_id]
-		node_dict[node_id] = cur_node.global_transform
-	
-	for peer_id in _connected_peers:
-		if peer_id == own_id:
-			continue
-		rpc_id(peer_id, "_receive_node_update", node_dict, NetworkManager.get_session_time())
+	#var own_id: int = multiplayer.get_unique_id()
+	#var own_rep_nodes: Dictionary = _replicated_nodes[own_id]
+	#var cur_node: Node3D
+	#var node_dict: Dictionary[int, Transform3D]
+		#
+	#for node_id in own_rep_nodes:
+		#cur_node = own_rep_nodes[node_id]
+		#node_dict[node_id] = cur_node.global_transform
+	#
+	#for peer_id in _connected_peers:
+		#if peer_id == own_id:
+			#continue
+		#rpc_id(peer_id, "_receive_node_update", node_dict, NetworkManager.get_session_time())
 		
 
 @rpc("any_peer")

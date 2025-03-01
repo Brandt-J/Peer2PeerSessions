@@ -12,6 +12,9 @@ height = 0.721095
 properties/0/path = NodePath(".:player_animation_state")
 properties/0/spawn = true
 properties/0/replication_mode = 2
+properties/1/path = NodePath(".:authority_transform")
+properties/1/spawn = true
+properties/1/replication_mode = 1
 
 [node name="Character" type="CharacterBody3D"]
 collision_layer = 2
@@ -31,6 +34,7 @@ bones/4/rotation = Quaternion(0, 0, -0.382683, 0.92388)
 bones/5/rotation = Quaternion(0, 0, 0.382683, 0.92388)
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.25
 replication_config = SubResource("SceneReplicationConfig_6sduc")
 public_visibility = false
 script = ExtResource("4_3wp4e")

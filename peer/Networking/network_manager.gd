@@ -11,6 +11,16 @@ func spawn_node(node_path: String, node_name: String, pos: Vector3) -> Node3D:
 	return _session_node_replicator.spawn_node(node_path, node_name, pos)
 
 
+func remove_node(node: Node3D) -> void:
+	assert(is_instance_valid(_session_node_replicator))
+	_session_node_replicator.remove_node(node)
+
+
+func get_connected_peers() -> Array[int]:
+	assert(is_instance_valid(_game_session))
+	return _game_session.get_connected_peers()
+
+
 func get_session_time() -> float:
 	assert(is_instance_valid(_game_session))
 	return _game_session.get_session_time()

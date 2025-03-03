@@ -1,6 +1,6 @@
 extends Control
 
-var IP_ADDRESS: String = "5.189.191.115"  # "127.0.0.1"
+var IP_ADDRESS: String = "127.0.0.1"  # "5.189.191.115"
 var PORT: int = 31415
 var sessions: Dictionary[String, GameSession] = {}
 var active_session: GameSession = null
@@ -15,9 +15,9 @@ func _ready() -> void:
 	multiplayer.connection_failed.connect(_connection_failed)
 	multiplayer.server_disconnected.connect(_server_disconnected)
 	%TimerConnect.start()
-	await get_tree().create_timer(3).timeout
-	_logger.info("Requesting to join Master Session")
-	_request_join_session("Master Session")
+	#await get_tree().create_timer(3).timeout
+	#_logger.info("Requesting to join Master Session")
+	#_request_join_session("Master Session")
 	
 
 func _try_connecting_to_server() -> void:
@@ -108,6 +108,7 @@ func _server_disconnected() -> void:
 
 
 func _on_session_spawner_spawned(node: Node) -> void:
+	await get_tree().create_timer(0.5).timeout  # wait so that the node is fully synchronized
 	var new_session: GameSession = node as GameSession
 	new_session.JoinRequest.connect(_request_join_session)
 	new_session.LeaveRequest.connect(_request_leaving_session)

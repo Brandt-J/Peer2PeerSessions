@@ -5,6 +5,7 @@ var _session_name: String = "DefaultName"
 var _map_name: String = "UnknownMap"
 var _connected_peers: Array[int] = []
 var _session_time: float = 0.0
+var _auto_close_when_empty: bool = true
 
 signal Closed(String)
 
@@ -37,6 +38,9 @@ func remove_peer(id: int) -> void:
 	if id in _connected_peers:
 		_connected_peers.erase(id)
 		_update_id_labels()
+		
+	if _connected_peers.size() == 0 and _auto_close_when_empty:
+		Closed.emit(_session_name)
 
 
 func get_peers() -> Array[int]:

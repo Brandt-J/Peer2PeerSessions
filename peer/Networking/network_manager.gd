@@ -4,6 +4,7 @@ signal connected_peers_updated(Array)
 
 var _session_node_replicator: SessionNodeReplicator
 var _game_session: GameSession
+@onready var _logger: Logging.Logger = Logging.get_logger("NodeReplicator")
 
 
 func spawn_node(node_path: String, node_name: String, pos: Vector3) -> Node3D:
@@ -12,8 +13,10 @@ func spawn_node(node_path: String, node_name: String, pos: Vector3) -> Node3D:
 
 
 func remove_node(node: Node3D) -> void:
-	assert(is_instance_valid(_session_node_replicator))
-	_session_node_replicator.remove_node(node)
+	if is_instance_valid(_session_node_replicator):
+		_session_node_replicator.remove_node(node)
+	else:
+		_logger.warning("Called to remove node %s, but replicator is not yet set anymore" % node.name)
 
 
 func get_connected_peers() -> Array[int]:

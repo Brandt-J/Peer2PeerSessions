@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bav61iseermfl"]
+
+[ext_resource type="Script" uid="uid://c5pbctwrpu1ib" path="res://Networking/custom_synchronizer.gd" id="1_vxr4w"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_6sduc"]
+properties/0/path = NodePath(".:player_animation_state")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[node name="CustomSynchronizer" type="MultiplayerSynchronizer"]
+replication_config = SubResource("SceneReplicationConfig_6sduc")
+public_visibility = false
+script = ExtResource("1_vxr4w")
+update_interval = 0.15
+
+[node name="UpdateTimer" type="Timer" parent="."]
+
+[connection signal="timeout" from="UpdateTimer" to="." method="_push_transform_update"]

@@ -11,36 +11,35 @@ var _node_templates: Dictionary[String, PackedScene] = {}
 var _spawnable_scenes: Array[String] = [
 	"res://Characters/Player.tscn",
 	"res://Characters/NPC.tscn"]
-@onready var _update_timer: Timer = $UpdateTimer
 @onready var _logger: Logging.Logger = Logging.get_logger("SessionNodeReplicator")
-@onready var _node_interp: NodeTransformInterpolation = $NodeTransformInterpolation
 
 
 func _ready() -> void:
 	_replicated_nodes[multiplayer.get_unique_id()] = {}
+	NetworkManager.connected_peers_updated.connect(_update_connected_peers)
+	NetworkManager.peer_disconnected_from_active_session.connect(_remove_connected_peer)
 
 
 func start() -> void:
 	_active = true
-	_node_interp.activate()
-	_update_timer.start()
+	var peers: Array[int] = NetworkManager.get_connected_peers()
+	if peers.size() == 0:
+		_logger.info("Starting without connected peers")
+	else:
+		_logger.info("Starting with peers %s" % peers)
 
 
 func stop() -> void:
 	_active = false
-	_node_interp.stop()
-	_update_timer.stop()
 	_reset_replicated_nodes()
 	
 
-func update_connected_peers(updated_connected_peers: Array[int]) -> void:
+func _update_connected_peers() -> void:
+	var updated_connected_peers: Array[int] = NetworkManager.get_connected_peers()
 	# Remove old peers
 	for old_id in _connected_peers:
 		if old_id not in updated_connected_peers:
-			if old_id in _replicated_nodes:
-				for node in _replicated_nodes[old_id].values():
-					node.queue_free()
-				_replicated_nodes.erase(old_id)
+			_remove_connected_peer(old_id)
 	
 	if _active:
 		# Add new peers
@@ -51,6 +50,14 @@ func update_connected_peers(updated_connected_peers: Array[int]) -> void:
 				_replicated_nodes[new_id] = {}
 	
 	_connected_peers = updated_connected_peers
+	
+	
+func _remove_connected_peer(id: int) -> void:
+	await get_tree().create_timer(0.1).timeout
+	if id in _replicated_nodes:
+		for node in _replicated_nodes[id].values():
+			node.queue_free()
+			_replicated_nodes.erase(id)
 
 
 func spawn_node(node_path: String, node_name: String, pos: Vector3) -> Node3D:
@@ -72,7 +79,6 @@ func remove_node(node: Node3D) -> void:
 	var auth_id: int = multiplayer.get_unique_id()
 	for node_id in _replicated_nodes[auth_id]:
 		if _replicated_nodes[auth_id][node_id] == node:
-			#_remove_replicated_node(auth_id, node_id)
 			for peer_id in _connected_peers:
 				rpc_id(peer_id, "_remove_replicated_node", auth_id, node_id)
 			break
@@ -104,9 +110,10 @@ func _spawn_replicated_node(node_path_id: int, authority_id: int, node_name: Str
 
 @rpc("any_peer", "call_local")
 func _remove_replicated_node(authority_id: int, node_id: int) -> void:
-	var node: Node3D = _replicated_nodes[authority_id][node_id]
-	node.queue_free()
-	_replicated_nodes[authority_id].erase(node_id)
+	if authority_id in _replicated_nodes:
+		var node: Node3D = _replicated_nodes[authority_id][node_id]
+		node.queue_free()
+		_replicated_nodes[authority_id].erase(node_id)
 
 
 func _replicate_nodes_to_new_player(player_id: int) -> void:
@@ -120,7 +127,7 @@ func _replicate_nodes_to_new_player(player_id: int) -> void:
 		node_resource_id = _spawnable_scenes.find(cur_node.scene_file_path)
 		assert(node_resource_id > -1)
 		node_list.append([node_id, node_resource_id, cur_node.name, cur_node.global_position])
-	
+	_logger.info("Replicating nodes to %s" % player_id)
 	rpc_id(player_id, "_receive_nodes_from_peer", multiplayer.get_unique_id(), node_list)
 	
 
@@ -134,43 +141,7 @@ func _receive_nodes_from_peer(peer_id: int, nodes_list: Array[Array]) -> void:
 		_replicated_nodes[peer_id] = {}
 
 	for node_info in nodes_list:  # [id, scene_path_id, name, pos]
-		#_spawn_replicated_node(node_path_id: int, authority_id: int, node_name: String, node_id: int, pos: Vector3) -> void:
 		_spawn_replicated_node(node_info[1], peer_id, node_info[2], node_info[0], node_info[3])
-
-
-func _send_node_updates_to_peers() -> void:
-	if not _active:
-		return
-		
-	#var own_id: int = multiplayer.get_unique_id()
-	#var own_rep_nodes: Dictionary = _replicated_nodes[own_id]
-	#var cur_node: Node3D
-	#var node_dict: Dictionary[int, Transform3D]
-		#
-	#for node_id in own_rep_nodes:
-		#cur_node = own_rep_nodes[node_id]
-		#node_dict[node_id] = cur_node.global_transform
-	#
-	#for peer_id in _connected_peers:
-		#if peer_id == own_id:
-			#continue
-		#rpc_id(peer_id, "_receive_node_update", node_dict, NetworkManager.get_session_time())
-		
-
-@rpc("any_peer")
-func _receive_node_update(node_dict: Dictionary[int, Transform3D], session_time: float) -> void:
-	var sender_id: int = multiplayer.get_remote_sender_id()
-	if not _active or sender_id not in _replicated_nodes:
-		return
-	
-	_node_interp.register_node_transform_update(sender_id, session_time, node_dict)
-	#var rep_node_dict: Dictionary = _replicated_nodes[sender_id]
-	#for node_id in node_dict:
-		#rep_node_dict[node_id].global_transform = node_dict[node_id]
-
-
-func get_replicated_nodes_of_player(player_id: int) -> Dictionary:
-	return _replicated_nodes[player_id]
 
 
 func _reset_replicated_nodes() -> void:

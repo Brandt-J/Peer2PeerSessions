@@ -1,6 +1,9 @@
 extends Node
 
-signal connected_peers_updated(Array)
+@warning_ignore("unused_signal")
+signal connected_peers_updated
+@warning_ignore("unused_signal")
+signal peer_disconnected_from_active_session(int)
 
 var _session_node_replicator: SessionNodeReplicator
 var _game_session: GameSession
@@ -24,13 +27,17 @@ func get_connected_peers() -> Array[int]:
 	return _game_session.get_connected_peers()
 
 
+func is_in_valid_session() -> bool:
+	return is_instance_valid(_game_session)
+
+
 func get_session_time() -> float:
 	assert(is_instance_valid(_game_session))
 	return _game_session.get_session_time()
 	
 
-func get_replicated_nodes_of_player(player_id: int) -> Dictionary:
-	return _session_node_replicator.get_replicated_nodes_of_player(player_id)
+#func get_replicated_nodes_of_player(player_id: int) -> Dictionary:
+	#return _session_node_replicator.get_replicated_nodes_of_player(player_id)
 
 
 func set_game_session(session: GameSession, replicator: SessionNodeReplicator) -> void:

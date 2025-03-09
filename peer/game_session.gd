@@ -20,6 +20,7 @@ var _session_time: float = 0.0
 
 func _ready():
 	set_inactive()
+	multiplayer.peer_disconnected.connect(_check_for_disconnected_peer)
 	
 
 func _process(delta: float) -> void:
@@ -43,14 +44,17 @@ func set_active() -> void:
 
 
 func set_inactive() -> void:
-	activeSession = false
 	%ButtonJoin.disabled = false
 	%ButtonLeave.disabled = true
 	var style: StyleBoxFlat = get_theme_stylebox("panel") as StyleBoxFlat
 	style.bg_color = color_inactive
-	NetworkManager.invalidate_game_session()
-	if is_instance_valid(_current_map):
-		_unload_map()
+	
+	if activeSession:
+		activeSession = false
+		await get_tree().create_timer(1.0).timeout
+		NetworkManager.invalidate_game_session()
+		if is_instance_valid(_current_map):
+			_unload_map()
 	
 	
 func disable_ui() -> void:
@@ -100,5 +104,10 @@ func _on_multiplayer_synchronizer_synchronized():
 	%LabelSessionName.text = _session_name
 	%LabelMap.text = _map_name
 	%LabelNumPlayers.text = str(len(_connected_peers))
-	NetworkManager.connected_peers_updated.emit(_connected_peers)
-	_node_replicator.update_connected_peers(_connected_peers)
+	if NetworkManager.is_in_valid_session():
+		NetworkManager.connected_peers_updated.emit()
+
+
+func _check_for_disconnected_peer(peer_id: int) -> void:
+	if peer_id in _connected_peers:
+		NetworkManager.peer_disconnected_from_active_session.emit(peer_id)

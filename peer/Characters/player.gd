@@ -13,7 +13,6 @@ func _ready() -> void:
 func activate() -> void:
 	_camera.activate()
 	_npc_spawner.spawn_npcs()
-	#_synchronizer.set_multiplayer_authority(multiplayer.get_unique_id())
 
 
 func _physics_process(delta: float) -> void:

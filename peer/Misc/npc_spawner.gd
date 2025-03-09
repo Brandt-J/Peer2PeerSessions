@@ -23,6 +23,9 @@ func _add_npc_add_random_position() -> void:
 
 
 func _on_exchange_npc_timer_timeout():
+	if not NetworkManager.is_in_valid_session():
+		return
+		
 	if npcs.size() > 0:
 		var rand_npc: NPC = npcs.pick_random()
 		npcs.erase(rand_npc)

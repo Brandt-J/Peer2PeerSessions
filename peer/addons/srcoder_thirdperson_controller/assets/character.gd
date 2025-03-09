@@ -8,7 +8,6 @@ const ROTATION_SPEED := 6.0
 
 var direction: Vector3
 var jumping: bool = false
-var authority_transform: Transform3D = Transform3D()
 var initial_transform_set: bool = false
 @onready var playermodel : Node3D = $playermodel
 
@@ -16,7 +15,6 @@ enum animation_state {IDLE,RUNNING,JUMPING}
 var animation_speed: float = 1.0
 var player_animation_state : animation_state = animation_state.IDLE
 @onready var _animation_player : AnimationPlayer = $"playermodel/character-male-e2/AnimationPlayer"
-@onready var _synchronizer: MultiplayerSynchronizer = $MultiplayerSynchronizer
 
 
 func _process(_delta: float) -> void:
@@ -32,15 +30,6 @@ func _process(_delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if not is_multiplayer_authority():
-		if not initial_transform_set:
-			if authority_transform == Transform3D():
-				return
-			else:
-				global_transform = authority_transform
-				initial_transform_set = true
-				#return
-			
-		global_transform = global_transform.interpolate_with(authority_transform, 3*delta)
 		return
 	
 	# Add the gravity.
@@ -54,7 +43,7 @@ func _physics_process(delta: float) -> void:
 	if direction != Vector3():
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
-		#now rotate the model
+
 		rotate_model(direction, delta)
 		player_animation_state = animation_state.RUNNING
 	else:
@@ -66,7 +55,6 @@ func _physics_process(delta: float) -> void:
 		player_animation_state = animation_state.JUMPING
 	
 	move_and_slide()
-	authority_transform = global_transform
 	
 	
 func rotate_model(direction: Vector3, delta : float) -> void:

@@ -20,10 +20,6 @@ config/icon="res://icon.svg"
 NetworkManager="*res://Networking/network_manager.gd"
 Logging="*res://Utils/Logging.tscn"
 
-[editor_plugins]
-
-enabled=PackedStringArray()
-
 [global_group]
 
 SpawnPoint=""
